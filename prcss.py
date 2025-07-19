@@ -4,7 +4,7 @@ import json
 import psycopg2
 import re
 from cryptography.fernet import Fernet
-
+import os
 
 app = Flask(__name__)
 
@@ -210,5 +210,8 @@ def receive_webhook():
         print("❌ Error procesando webhook:", e)
         return {'status': 'error'}, 500
 
+
 if __name__ == '__main__':
-    app.run(port=5000)
+    port = int(os.environ.get("PORT", 8080))
+    app.run(host="0.0.0.0", port=port)
+
