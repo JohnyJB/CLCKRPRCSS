@@ -8,16 +8,29 @@ import os
 
 app = Flask(__name__)
 
-# Cargar clave y desencriptar configuración
-with open("key.key", "rb") as key_file:
-    key = key_file.read()
+def cargar_config_db():
+    try:
+        with open("key.key", "rb") as key_file:
+            key = key_file.read()
 
-fernet = Fernet(key)
+        fernet = Fernet(key)
 
-with open("db.txt", "rb") as enc_file:
-    encrypted_data = enc_file.read()
+        with open("db.txt", "rb") as enc_file:
+            encrypted_data = enc_file.read()
 
-decrypted_data = fernet.decrypt(encrypted_data).decode()
+        decrypted_data = fernet.decrypt(encrypted_data).decode()
+
+        # Evalúa el string como diccionario de Python
+        namespace = {}
+        exec(decrypted_data, {}, namespace)
+        return namespace["DB_CONFIG"]
+
+    except Exception as e:
+        print("❌ Error cargando configuración de la base de datos:", e)
+        return None
+
+# Llama a la función para cargar DB_CONFIG
+DB_CONFIG = cargar_config_db()
 
 #
 def conectar_db():
