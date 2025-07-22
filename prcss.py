@@ -5,6 +5,8 @@ import psycopg2
 import re
 from cryptography.fernet import Fernet
 import os
+from datetime import datetime, timedelta, timezone
+import pyt
 
 app = Flask(__name__)
 
@@ -207,7 +209,9 @@ def insertar_evento(data):
 def receive_webhook():
     try:
         data = request.json
-        now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        cdmx_tz = pytz.timezone("America/Mexico_City")
+        now = datetime.datetime.now(cdmx_tz).strftime('%Y-%m-%d %H:%M:%S')
+
 
         print(f"\n[📩 {now}] Webhook recibido:")
         print(json.dumps(data, indent=4, ensure_ascii=False))
