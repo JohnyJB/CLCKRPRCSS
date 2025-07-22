@@ -6,7 +6,7 @@ import re
 from cryptography.fernet import Fernet
 import os
 from datetime import datetime, timedelta, timezone
-import pyt
+import pytz
 
 app = Flask(__name__)
 
