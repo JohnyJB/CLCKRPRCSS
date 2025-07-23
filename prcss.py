@@ -44,20 +44,22 @@ def asignar_evento_ajustado_por_email(email):
         cur.execute("""
             UPDATE mails_open
             SET evento_ajustado = CASE
-                WHEN event_type = 'email_sent' THEN 'Sent'
-                WHEN event_type = 'email_bounced' THEN 'Bounce'
-                WHEN event_type = 'Replied' THEN 'Replied'
-                WHEN event_type = 'Auto Reply' THEN 'Auto Reply'
-                WHEN event_type = 'Interested' THEN 'Interested'
-                WHEN event_type = 'Unibox Reply' THEN 'Unibox Reply'
-                WHEN event_type = 'Meeting booked' THEN 'Meeting booked'
-                WHEN event_type = 'Customer' THEN 'Customer'
-                WHEN event_type = 'email_opened' THEN 'Opened'
-                WHEN event_type = 'link_clicked' THEN 'Link Clicked'
+                WHEN event_type IN ('email_sent', 'Sent') THEN 'Sent'
+                WHEN event_type IN ('email_opened', 'Opened') THEN 'Opened'
+                WHEN event_type IN ('email_bounced', 'Bounce') THEN 'Bounce'
+                WHEN event_type IN ('reply_received', 'Replied') THEN 'Replied'
+                WHEN event_type IN ('lead_unsubscribed', 'Unsubscribed') THEN 'Unsubscribed'
+                WHEN event_type IN ('auto_reply_received', 'Auto Reply') THEN 'Auto Reply'
+                WHEN event_type IN ('lead_interested', 'Interested') THEN 'Interested'
+                WHEN event_type IN ('lead_not_interested', 'Not Interested') THEN 'Not Interested'
+                WHEN event_type IN ('lead_wrong_person', 'Wrong Person') THEN 'Wrong Person'
+                WHEN event_type IN ('lead_meeting_booked', 'Meeting Booked') THEN 'Meeting Booked'
+                WHEN event_type IN ('link_clicked', 'Link Clicked') THEN 'Link Clicked'
                 ELSE evento_ajustado
             END
             WHERE email = %s;
         """, (email,))
+
 
         cur.execute("""
             UPDATE mails_open mo
@@ -165,6 +167,8 @@ def insertar_evento(data):
             cur.execute("SELECT id FROM contactos WHERE email = %s", (email,))
             contacto_id = cur.fetchone()[0]
 
+        event_type = data.get("event_type", "").strip().lower()
+
         # Insertar en mails_open
         cur.execute("""
             INSERT INTO mails_open (
@@ -176,7 +180,7 @@ def insertar_evento(data):
         """, (
             contacto_id, None,
             data.get("timestamp"),
-            data.get("event_type"),
+            event_type,
             data.get("workspace"),
             data.get("campaign_id"),
             data.get("unibox_url"),
